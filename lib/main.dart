@@ -11,13 +11,16 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-          brightness: Brightness.dark,
-          focusColor: const Color.fromARGB(255, 255, 255, 255)),
+        brightness: Brightness.dark,
+        textTheme: Theme.of(context).textTheme.apply(
+            bodyColor: const Color.fromARGB(255, 255, 255, 255),
+            fontFamily: "Nothing"),
+      ),
       home: const Scaffold(
         body: Center(
           child: Text(
             'N-NOTES',
-            style: TextStyle(fontFamily: "Nothing", fontSize: 26),
+            style: TextStyle(fontSize: 26),
           ),
         ),
       ),
