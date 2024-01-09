@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sizer/sizer.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -12,14 +13,14 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 75,
+        toolbarHeight: 10.h,
         // backgroundColor: Colors.black,
-        title: const Text("NOTES", style: TextStyle(fontSize: 45)),
+        title: Text("NOTES", style: TextStyle(fontSize: 7.h)),
       ),
-      body: const Center(
+      body: Center(
         child: Text(
           '',
-          style: TextStyle(fontSize: 75),
+          style: TextStyle(fontSize: 10.h),
         ),
       ),
     );
