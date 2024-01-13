@@ -1,6 +1,7 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:n_notes_app/models/note.dart';
 import 'package:path_provider/path_provider.dart';
+import 'dart:developer';
 
 class NoteDB {
   static Future initialize() async {
@@ -10,13 +11,17 @@ class NoteDB {
     Hive.registerAdapter(NoteAdapter());
   }
 
-  List notes = [];
+  List<String> notes = [];
 
   Future fetchNotes() async {
     var box = await Hive.openBox<Note>('notes');
-    List fetchNotes = box.values.toList();
+    List<String> fetchNotes = box.values.map((note) {
+      return note.text;
+    }).toList();
+    log("Fetch called");
     notes.clear();
     notes.addAll(fetchNotes);
+    log("Notes List: $notes");
     await box.close();
   }
 
