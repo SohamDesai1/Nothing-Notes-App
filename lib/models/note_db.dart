@@ -1,9 +1,13 @@
+import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:n_notes_app/models/note.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:developer';
 
-class NoteDB {
+class NoteDB extends ChangeNotifier {
+  List<Note> _notes = [];
+  List<Note> get notes => _notes;
+
   static Future initialize() async {
     final dir = await getApplicationDocumentsDirectory();
     Hive.init(dir.path);
@@ -11,43 +15,39 @@ class NoteDB {
     Hive.registerAdapter(NoteAdapter());
   }
 
-  List<String> notes = [];
-
-  Future fetchNotes() async {
+  Future<void> fetchNotes() async {
     var box = await Hive.openBox<Note>('notes');
-    List<String> fetchNotes = box.values.map((note) {
-      return note.text;
-    }).toList();
-    log("Fetch called");
-    notes.clear();
-    notes.addAll(fetchNotes);
-    log("Notes List: $notes");
+    List<Note> fetchNotes = box.values.toList();
+    _notes = fetchNotes;
+    log(_notes.toString());
+    notifyListeners();
     await box.close();
   }
 
-  Future addNote(String note) async {
+  Future<void> addNote(String note) async {
     var box = await Hive.openBox<Note>('notes');
     box.add(Note(text: note));
-    await fetchNotes();
     await box.close();
+    await fetchNotes();
   }
 
-  Future updateNote(String newText, int noteId) async {
+  Future<void> updateNote(String newText, int noteId) async {
     var box = await Hive.openBox<Note>('notes');
     Note? existingNote = box.get(noteId);
+
     if (existingNote != null) {
       var updatedNote = Note(text: newText);
       await box.put(noteId, updatedNote);
-      await existingNote.save();
     }
-    await fetchNotes();
+
     await box.close();
+    await fetchNotes();
   }
 
-  Future deleteNote(int noteId) async {
+  Future<void> deleteNote(int noteId) async {
     var box = await Hive.openBox<Note>('notes');
     await box.delete(noteId);
-    await fetchNotes();
     await box.close();
+    await fetchNotes();
   }
 }
