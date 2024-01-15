@@ -28,9 +28,17 @@ class _HomeState extends ConsumerState<Home> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        content: TextField(
-          controller: textctrl,
-          style: const TextStyle(color: Colors.black),
+        content: Column(
+          children: [
+            TextField(
+              controller: titlectrl,
+              style: const TextStyle(color: Colors.black),
+            ),
+            TextField(
+              controller: textctrl,
+              style: const TextStyle(color: Colors.black),
+            ),
+          ],
         ),
         actions: [
           MaterialButton(
@@ -48,13 +56,22 @@ class _HomeState extends ConsumerState<Home> {
   }
 
   void updateNote(Note note) {
+    titlectrl.text = note.title;
     textctrl.text = note.text;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        content: TextField(
-          controller: textctrl,
-          style: const TextStyle(color: Colors.black),
+        content: Column(
+          children: [
+            TextField(
+              controller: titlectrl,
+              style: const TextStyle(color: Colors.black),
+            ),
+            TextField(
+              controller: textctrl,
+              style: const TextStyle(color: Colors.black),
+            ),
+          ],
         ),
         actions: [
           MaterialButton(
@@ -62,7 +79,7 @@ class _HomeState extends ConsumerState<Home> {
               ref
                   .read(noteDBProvider)
                   .updateNote(titlectrl.text, textctrl.text, note.key);
-              textctrl.clear();
+              titlectrl.clear();
               Routes.router.pop();
             },
             child: const Text("Edit", style: TextStyle(fontFamily: "Nothing")),
@@ -121,6 +138,11 @@ class _HomeState extends ConsumerState<Home> {
                 final note = currNotes[index];
                 return ListTile(
                   title: Text(
+                    note.title,
+                    style: const TextStyle(
+                        color: Colors.white, fontFamily: "Nothing"),
+                  ),
+                  subtitle: Text(
                     note.text,
                     style: const TextStyle(
                         color: Colors.white, fontFamily: "Nothing"),

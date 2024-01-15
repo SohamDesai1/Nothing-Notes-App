@@ -24,19 +24,19 @@ class NoteDB extends ChangeNotifier {
     await box.close();
   }
 
-  Future<void> addNote(String note) async {
+  Future<void> addNote(String title, String note) async {
     var box = await Hive.openBox<Note>('notes');
-    box.add(Note(text: note));
+    box.add(Note(text: note, title: title));
     await box.close();
     await fetchNotes();
   }
 
-  Future<void> updateNote(String newText, int noteId) async {
+  Future<void> updateNote(String title, String newText, int noteId) async {
     var box = await Hive.openBox<Note>('notes');
     Note? existingNote = box.get(noteId);
 
     if (existingNote != null) {
-      var updatedNote = Note(text: newText);
+      var updatedNote = Note(text: newText, title: title);
       await box.put(noteId, updatedNote);
     }
 
