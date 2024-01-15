@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:n_notes_app/providers/theme.dart';
 import 'dart:developer';
 import 'package:sizer/sizer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,6 +15,7 @@ class Home extends ConsumerStatefulWidget {
 }
 
 class _HomeState extends ConsumerState<Home> {
+  final titlectrl = TextEditingController();
   final textctrl = TextEditingController();
 
   @override
@@ -33,11 +35,12 @@ class _HomeState extends ConsumerState<Home> {
         actions: [
           MaterialButton(
             onPressed: () {
-              ref.read(noteDBProvider).addNote(textctrl.text);
+              ref.read(noteDBProvider).addNote(titlectrl.text, textctrl.text);
               log("CurrNotes:${ref.read(noteDBProvider).notes.toString()}");
               Routes.router.pop();
             },
-            child: const Text("Create"),
+            child:
+                const Text("Create", style: TextStyle(fontFamily: "Nothing")),
           ),
         ],
       ),
@@ -56,11 +59,13 @@ class _HomeState extends ConsumerState<Home> {
         actions: [
           MaterialButton(
             onPressed: () {
-              ref.read(noteDBProvider).updateNote(textctrl.text, note.key);
+              ref
+                  .read(noteDBProvider)
+                  .updateNote(titlectrl.text, textctrl.text, note.key);
               textctrl.clear();
               Routes.router.pop();
             },
-            child: const Text("Edit"),
+            child: const Text("Edit", style: TextStyle(fontFamily: "Nothing")),
           ),
         ],
       ),
@@ -74,12 +79,30 @@ class _HomeState extends ConsumerState<Home> {
   @override
   Widget build(BuildContext context) {
     final notesDB = ref.watch(noteDBProvider);
+    final theme = ref.watch(themerProvider);
     final currNotes = notesDB.notes;
 
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 10.h,
-        title: Text("NOTES", style: TextStyle(fontSize: 7.h)),
+        title: Text("NOTES",
+            style: TextStyle(fontSize: 7.h, fontFamily: "Nothing")),
+        actions: [
+          theme.dark
+              ? const Text("Dark Mode", style: TextStyle(fontFamily: "Nothing"))
+              : const Text("Light Mode",
+                  style: TextStyle(fontFamily: "Nothing")),
+          SizedBox(
+            width: 4.w,
+          ),
+          Switch(
+              activeThumbImage: const AssetImage("assets/dark.png"),
+              inactiveThumbImage: const AssetImage("assets/light.png"),
+              value: theme.dark,
+              onChanged: (bool value) {
+                theme.toggleTheme();
+              })
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: createNote,
@@ -87,7 +110,10 @@ class _HomeState extends ConsumerState<Home> {
       ),
       body: currNotes.isEmpty
           ? const Center(
-              child: Text("No notes available"),
+              child: Text(
+                "No notes available",
+                style: TextStyle(fontFamily: "Nothing"),
+              ),
             )
           : ListView.builder(
               itemCount: currNotes.length,
@@ -96,7 +122,8 @@ class _HomeState extends ConsumerState<Home> {
                 return ListTile(
                   title: Text(
                     note.text,
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(
+                        color: Colors.white, fontFamily: "Nothing"),
                   ),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,

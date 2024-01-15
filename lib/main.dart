@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:n_notes_app/models/note_db.dart';
-import 'package:n_notes_app/routes/routes.dart';
 import 'package:sizer/sizer.dart';
+import 'models/note_db.dart';
+import 'providers/theme.dart';
+import 'routes/routes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,19 +22,17 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return Sizer(
       builder: (_, __, ___) {
-        return MaterialApp.router(
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            appBarTheme: const AppBarTheme(
-                backgroundColor: Colors.black, foregroundColor: Colors.white),
-            scaffoldBackgroundColor: Colors.black,
-            textTheme: Theme.of(context).textTheme.apply(
-                bodyColor: const Color.fromARGB(255, 255, 255, 255),
-                fontFamily: "Nothing"),
-          ),
-          routeInformationParser: Routes.router.routeInformationParser,
-          routeInformationProvider: Routes.router.routeInformationProvider,
-          routerDelegate: Routes.router.routerDelegate,
+        return Consumer(
+          builder: (context, ref, child) {
+            final theme = ref.watch(themerProvider);
+            return MaterialApp.router(
+              debugShowCheckedModeBanner: false,
+              theme: theme.theme,
+              routeInformationParser: Routes.router.routeInformationParser,
+              routeInformationProvider: Routes.router.routeInformationProvider,
+              routerDelegate: Routes.router.routerDelegate,
+            );
+          },
         );
       },
     );
