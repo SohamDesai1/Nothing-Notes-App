@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
 
 ThemeData darkmode = ThemeData(
+  useMaterial3: true,
   appBarTheme: const AppBarTheme(backgroundColor: Colors.black),
-  textTheme: const TextTheme(bodyLarge: TextStyle(fontFamily: "Nothing")),
-  switchTheme: SwitchThemeData(
-    trackColor:
-        MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
-      return Colors.white;
-    }),
-    thumbColor:
-        MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
-      return Colors.black;
-    }),
-  ),
+  textTheme: const TextTheme(
+      displayLarge: TextStyle(fontFamily: "Nothing", color: Colors.white),
+    bodyLarge: TextStyle(fontFamily: "Nothing", color: Colors.white),
+    bodyMedium: TextStyle(fontFamily: "Nothing", color: Colors.white),
+    bodySmall: TextStyle(fontFamily: "Nothing", color: Colors.white),
+    displayMedium: TextStyle(fontFamily: "Nothing", color: Colors.white),
+    displaySmall: TextStyle(fontFamily: "Nothing", color: Colors.white),
+    headlineLarge: TextStyle(fontFamily: "Nothing", color: Colors.white),
+    headlineMedium: TextStyle(fontFamily: "Nothing", color: Colors.white),
+    headlineSmall: TextStyle(fontFamily: "Nothing", color: Colors.white),
+    labelLarge: TextStyle(fontFamily: "Nothing", color: Colors.white),
+    labelMedium: TextStyle(fontFamily: "Nothing", color: Colors.white),
+    labelSmall: TextStyle(fontFamily: "Nothing", color: Colors.white),
+    titleLarge: TextStyle(fontFamily: "Nothing", color: Colors.white),
+    titleMedium: TextStyle(fontFamily: "Nothing", color: Colors.white),
+    titleSmall: TextStyle(fontFamily: "Nothing", color: Colors.white)),
   floatingActionButtonTheme:
       const FloatingActionButtonThemeData(backgroundColor: Colors.white),
   brightness: Brightness.dark,

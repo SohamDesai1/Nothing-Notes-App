@@ -37,6 +37,8 @@ icons_launcher:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/
   fonts:
     - family: Nothing
       fonts:

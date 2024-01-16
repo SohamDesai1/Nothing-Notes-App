@@ -28,27 +28,29 @@ class _HomeState extends ConsumerState<Home> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        content: Column(
-          children: [
-            TextField(
-              controller: titlectrl,
-              style: const TextStyle(color: Colors.black),
-            ),
-            TextField(
-              controller: textctrl,
-              style: const TextStyle(color: Colors.black),
-            ),
-          ],
+        content: SizedBox(
+          height: 20.h,
+          child: Column(
+            children: [
+              TextField(
+                controller: titlectrl,
+              ),
+              TextField(
+                controller: textctrl,
+              ),
+            ],
+          ),
         ),
         actions: [
           MaterialButton(
             onPressed: () {
               ref.read(noteDBProvider).addNote(titlectrl.text, textctrl.text);
               log("CurrNotes:${ref.read(noteDBProvider).notes.toString()}");
+              textctrl.clear();
+              titlectrl.clear();
               Routes.router.pop();
             },
-            child:
-                const Text("Create", style: TextStyle(fontFamily: "Nothing")),
+            child: const Text("Create"),
           ),
         ],
       ),
@@ -61,17 +63,18 @@ class _HomeState extends ConsumerState<Home> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        content: Column(
-          children: [
-            TextField(
-              controller: titlectrl,
-              style: const TextStyle(color: Colors.black),
-            ),
-            TextField(
-              controller: textctrl,
-              style: const TextStyle(color: Colors.black),
-            ),
-          ],
+        content: SizedBox(
+          height: 15.h,
+          child: Column(
+            children: [
+              TextField(
+                controller: titlectrl,
+              ),
+              TextField(
+                controller: textctrl,
+              ),
+            ],
+          ),
         ),
         actions: [
           MaterialButton(
@@ -80,9 +83,10 @@ class _HomeState extends ConsumerState<Home> {
                   .read(noteDBProvider)
                   .updateNote(titlectrl.text, textctrl.text, note.key);
               titlectrl.clear();
+              textctrl.clear();
               Routes.router.pop();
             },
-            child: const Text("Edit", style: TextStyle(fontFamily: "Nothing")),
+            child: const Text("Edit"),
           ),
         ],
       ),
@@ -103,12 +107,11 @@ class _HomeState extends ConsumerState<Home> {
       appBar: AppBar(
         toolbarHeight: 10.h,
         title: Text("NOTES",
-            style: TextStyle(fontSize: 7.h, fontFamily: "Nothing")),
+            style: TextStyle(
+              fontSize: 7.h,
+            )),
         actions: [
-          theme.dark
-              ? const Text("Dark Mode", style: TextStyle(fontFamily: "Nothing"))
-              : const Text("Light Mode",
-                  style: TextStyle(fontFamily: "Nothing")),
+          theme.dark ? const Text("Dark Mode") : const Text("Light Mode"),
           SizedBox(
             width: 4.w,
           ),
@@ -129,7 +132,6 @@ class _HomeState extends ConsumerState<Home> {
           ? const Center(
               child: Text(
                 "No notes available",
-                style: TextStyle(fontFamily: "Nothing"),
               ),
             )
           : ListView.builder(
@@ -139,13 +141,9 @@ class _HomeState extends ConsumerState<Home> {
                 return ListTile(
                   title: Text(
                     note.title,
-                    style: const TextStyle(
-                        color: Colors.white, fontFamily: "Nothing"),
                   ),
                   subtitle: Text(
                     note.text,
-                    style: const TextStyle(
-                        color: Colors.white, fontFamily: "Nothing"),
                   ),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
