@@ -7,5 +7,7 @@ class Note extends HiveObject {
   final String title;
   @HiveField(1)
   final String text;
-  Note({required this.text, required this.title});
+  @HiveField(2)
+  late bool isPinned;
+  Note({required this.text, required this.title, this.isPinned = false});
 }
