@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:n_notes_app/providers/theme.dart';
 import 'dart:developer';
-import 'package:sizer/sizer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sizer/sizer.dart';
+import '../providers/theme.dart';
+import '../providers/notes.dart';
 import '../models/note.dart';
 import '../routes/routes.dart';
-import '../providers/notes.dart';
+import '../widgets/note_display.dart';
 
 class Home extends ConsumerStatefulWidget {
   const Home({super.key});
@@ -97,70 +98,108 @@ class _HomeState extends ConsumerState<Home> {
     ref.read(noteDBProvider).deleteNote(note.key);
   }
 
+  Offset _tapPosition = Offset.zero;
+  void _getTapPosition(TapDownDetails details) {
+    final RenderBox referenceBox = context.findRenderObject() as RenderBox;
+    setState(() {
+      _tapPosition = referenceBox.globalToLocal(details.globalPosition);
+    });
+  }
+
+  void _showContextMenu(BuildContext context, Note note) async {
+    final RenderObject? overlay =
+        Overlay.of(context).context.findRenderObject();
+
+    await showMenu(
+        context: context,
+        position: RelativeRect.fromRect(
+            Rect.fromLTWH(_tapPosition.dx, _tapPosition.dy, 30, 30),
+            Rect.fromLTWH(0, 0, overlay!.paintBounds.size.width,
+                overlay.paintBounds.size.height)),
+        items: [
+          const PopupMenuItem(
+            value: 'Pin',
+            child: Text('Pin Note'),
+          ),
+          PopupMenuItem(
+            value: 'Delete',
+            child: const Text('Delete'),
+            onTap: () => deleteNote(note)
+          ),
+        ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     final notesDB = ref.watch(noteDBProvider);
     final theme = ref.watch(themerProvider);
     final currNotes = notesDB.notes;
-
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 10.h,
-        title: Text("NOTES",
-            style: TextStyle(
-              fontSize: 7.h,
-            )),
-        actions: [
-          theme.dark ? const Text("Dark Mode") : const Text("Light Mode"),
-          SizedBox(
-            width: 4.w,
-          ),
-          Switch(
-              activeThumbImage: const AssetImage("assets/dark.png"),
-              inactiveThumbImage: const AssetImage("assets/light.png"),
-              value: theme.dark,
-              onChanged: (bool value) {
-                theme.toggleTheme();
-              })
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: createNote,
-        child: const Icon(Icons.add),
-      ),
-      body: currNotes.isEmpty
-          ? const Center(
-              child: Text(
-                "No notes available",
-              ),
-            )
-          : ListView.builder(
-              itemCount: currNotes.length,
-              itemBuilder: (context, index) {
-                final note = currNotes[index];
-                return ListTile(
-                  title: Text(
-                    note.title,
-                  ),
-                  subtitle: Text(
-                    note.text,
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        onPressed: () => updateNote(note),
-                        icon: const Icon(Icons.edit),
-                      ),
-                      IconButton(
-                        onPressed: () => deleteNote(note),
-                        icon: const Icon(Icons.delete),
-                      ),
-                    ],
-                  ),
-                );
-              },
+        appBar: AppBar(
+          toolbarHeight: 10.h,
+          title: Text("NOTES",
+              style: TextStyle(
+                fontSize: 7.h,
+              )),
+          actions: [
+            theme.dark ? const Text("Dark Mode") : const Text("Light Mode"),
+            SizedBox(
+              width: 4.w,
             ),
-    );
+            Switch(
+                activeThumbImage: const AssetImage("assets/dark.png"),
+                inactiveThumbImage: const AssetImage("assets/light.png"),
+                value: theme.dark,
+                onChanged: (bool value) {
+                  theme.toggleTheme();
+                })
+          ],
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: FloatingActionButton(
+          shape: const CircleBorder(),
+          onPressed: createNote,
+          child: const Icon(
+            Icons.add,
+            color: Colors.red,
+          ),
+        ),
+        body: currNotes.isEmpty
+            ? const Center(
+                child: Text(
+                  "No notes available",
+                ),
+              )
+            : ListView.builder(
+                itemCount: (currNotes.length / 2).ceil(),
+                itemBuilder: (context, index) {
+                  final startIndex = index * 2;
+                  final endIndex = (index + 1) * 2;
+
+                  final effectiveEndIndex =
+                      endIndex > currNotes.length ? currNotes.length : endIndex;
+                  return Row(
+                    children: List.generate(
+                      effectiveEndIndex - startIndex,
+                      (i) {
+                        final note = currNotes[startIndex + i];
+                        return Expanded(
+                          child: GestureDetector(
+                            onTap: () {},
+                            onLongPress: () => _showContextMenu(context, note),
+                            onTapDown: (details) => _getTapPosition(details),
+                            child: NotesDisplay(
+                              title: note.title,
+                              content: note.text,
+                              color: theme.dark ? Colors.white : Colors.black,
+                              bgcolor: theme.dark ? Colors.black : Colors.white,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ));
   }
 }
