@@ -1,35 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'note.dart';
+import 'package:n_notes_app/models/note.dart';
+import 'package:n_notes_app/models/note_db.dart';
 
 class PinNotes extends ChangeNotifier {
   List<Note> _pinnedNotes = [];
-
   List<Note> get pinnedNotes => _pinnedNotes;
+
+  NoteDB notesDB = NoteDB();
 
   Future<void> fetchPin() async {
     var box = await Hive.openBox<Note>('pinNotes');
-    List<Note> fetchNotes = box.values.toList();
-    _pinnedNotes = fetchNotes;
-    debugPrint(_pinnedNotes.toString());
+    _pinnedNotes = box.values.where((note) => note.isPinned == true).toList();
+    debugPrint("Pinned:${_pinnedNotes.map((e) => e.title).toString()}");
     notifyListeners();
     await box.close();
   }
 
   Future<void> addPin(Note note) async {
-    var box = await Hive.openBox<Note>('pinNotes');
-    box.add(note);
-    note.isPinned = !note.isPinned;
-    
-    await box.close();
-    await fetchPin();
+    if (!note.isPinned) {
+      note.isPinned = true;
+      var box = await Hive.openBox<Note>('pinNotes');
+      box.add(Note(
+        title: note.title,
+        text: note.text,
+        isPinned: true,
+      ));
+      notesDB.notes.remove(note);
+      await notesDB.fetchNotes();
+      await box.close();
+      await fetchPin();
+    }
   }
 
   Future<void> removePin(Note note) async {
-    var box = await Hive.openBox<Note>('pinNotes');
-    await box.delete(note.key);
-    note.isPinned = !note.isPinned;
-    await box.close();
-    await fetchPin();
+    if (note.isPinned) {
+      note.isPinned = false;
+      var box = await Hive.openBox<Note>('pinNotes');
+      var pinnedNote = box.values.firstWhere((n) => n.key == note.key);
+      await box.delete(pinnedNote.key);
+      notesDB.notes.add(note);
+      await notesDB.fetchNotes();
+      await box.close();
+      await fetchPin();
+    }
   }
 }

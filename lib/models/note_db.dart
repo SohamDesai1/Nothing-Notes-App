@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:n_notes_app/models/note.dart';
 import 'package:path_provider/path_provider.dart';
-import 'dart:developer';
 
 class NoteDB extends ChangeNotifier {
-  List<Note> _notes = [];
-  List<Note> get notes => _notes;
+  List<Note> notes = [];
+  List<Note> get allnotes => notes;
 
   static Future initialize() async {
     final dir = await getApplicationDocumentsDirectory();
@@ -18,8 +17,8 @@ class NoteDB extends ChangeNotifier {
   Future<void> fetchNotes() async {
     var box = await Hive.openBox<Note>('notes');
     List<Note> fetchNotes = box.values.toList();
-    _notes = fetchNotes;
-    log(_notes.toString());
+    notes = fetchNotes;
+    debugPrint("Notes:${notes.map((e) => e.title).toString()}");
     notifyListeners();
     await box.close();
   }

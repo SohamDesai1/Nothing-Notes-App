@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sizer/sizer.dart';
 import '../providers/theme.dart';
 import '../providers/notes.dart';
+import '../providers/pin_notes.dart';
 import '../models/note.dart';
 import '../routes/routes.dart';
 import '../widgets/note_display.dart';
@@ -23,6 +24,7 @@ class _HomeState extends ConsumerState<Home> {
   void initState() {
     super.initState();
     ref.read(noteDBProvider).fetchNotes();
+    ref.read(pinNoteProvider).fetchPin();
   }
 
   void createNote() {
@@ -98,6 +100,14 @@ class _HomeState extends ConsumerState<Home> {
     ref.read(noteDBProvider).deleteNote(note.key);
   }
 
+  void addPin(Note note) {
+    ref.read(pinNoteProvider).addPin(note);
+  }
+
+  void removePin(Note note) {
+    ref.read(pinNoteProvider).removePin(note);
+  }
+
   Offset _tapPosition = Offset.zero;
   void _getTapPosition(TapDownDetails details) {
     final RenderBox referenceBox = context.findRenderObject() as RenderBox;
@@ -117,23 +127,32 @@ class _HomeState extends ConsumerState<Home> {
             Rect.fromLTWH(0, 0, overlay!.paintBounds.size.width,
                 overlay.paintBounds.size.height)),
         items: [
-          const PopupMenuItem(
+          PopupMenuItem(
             value: 'Pin',
-            child: Text('Pin Note'),
+            child: Text(note.isPinned ? 'Unpin Note' : "Pin Note"),
+            onTap: () {
+              if (note.isPinned) {
+                removePin(note);
+              } else {
+                addPin(note);
+              }
+            },
           ),
           PopupMenuItem(
-            value: 'Delete',
-            child: const Text('Delete'),
-            onTap: () => deleteNote(note)
-          ),
+              value: 'Delete',
+              child: const Text('Delete'),
+              onTap: () => deleteNote(note)),
         ]);
   }
 
   @override
   Widget build(BuildContext context) {
-    final notesDB = ref.watch(noteDBProvider);
     final theme = ref.watch(themerProvider);
+    final notesDB = ref.watch(noteDBProvider);
     final currNotes = notesDB.notes;
+    log(currNotes.map((e) => e.title).toString());
+    final pinNotes = ref.watch(pinNoteProvider);
+    final pinned = pinNotes.pinnedNotes;
     return Scaffold(
         appBar: AppBar(
           toolbarHeight: 10.h,
@@ -170,36 +189,88 @@ class _HomeState extends ConsumerState<Home> {
                   "No notes available",
                 ),
               )
-            : ListView.builder(
-                itemCount: (currNotes.length / 2).ceil(),
-                itemBuilder: (context, index) {
-                  final startIndex = index * 2;
-                  final endIndex = (index + 1) * 2;
+            : SingleChildScrollView(
+                child: Column(
+                  children: [
+                    pinned.isNotEmpty
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "Pinned",
+                                style: TextStyle(fontSize: 22),
+                              ),
+                              SizedBox(
+                                height: 30.h,
+                                child: ListView.builder(
+                                  itemCount: pinned.length,
+                                  itemBuilder: (context, index) {
+                                    final note = pinned[index];
+                                    return GestureDetector(
+                                      onTap: () {},
+                                      onLongPress: () =>
+                                          _showContextMenu(context, note),
+                                      onTapDown: (details) =>
+                                          _getTapPosition(details),
+                                      child: NotesDisplay(
+                                        title: note.title,
+                                        content: note.text,
+                                        color: theme.dark
+                                            ? Colors.white
+                                            : Colors.black,
+                                        bgcolor: theme.dark
+                                            ? Colors.black
+                                            : Colors.white,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          )
+                        : const SizedBox(),
+                    SizedBox(
+                      height: 80.h,
+                      child: ListView.builder(
+                        itemCount: (currNotes.length / 2).ceil(),
+                        itemBuilder: (context, index) {
+                          final startIndex = index * 2;
+                          final endIndex = (index + 1) * 2;
 
-                  final effectiveEndIndex =
-                      endIndex > currNotes.length ? currNotes.length : endIndex;
-                  return Row(
-                    children: List.generate(
-                      effectiveEndIndex - startIndex,
-                      (i) {
-                        final note = currNotes[startIndex + i];
-                        return Expanded(
-                          child: GestureDetector(
-                            onTap: () {},
-                            onLongPress: () => _showContextMenu(context, note),
-                            onTapDown: (details) => _getTapPosition(details),
-                            child: NotesDisplay(
-                              title: note.title,
-                              content: note.text,
-                              color: theme.dark ? Colors.white : Colors.black,
-                              bgcolor: theme.dark ? Colors.black : Colors.white,
-                            ),
-                          ),
-                        );
-                      },
+                          final effectiveEndIndex = endIndex > currNotes.length
+                              ? currNotes.length
+                              : endIndex;
+                          return Row(
+                            children: List.generate(
+                                effectiveEndIndex - startIndex, (i) {
+                              final note = currNotes[startIndex + i];
+
+                              return Expanded(
+                                child: GestureDetector(
+                                  onTap: () {},
+                                  onLongPress: () =>
+                                      _showContextMenu(context, note),
+                                  onTapDown: (details) =>
+                                      _getTapPosition(details),
+                                  child: NotesDisplay(
+                                    title: note.title,
+                                    content: note.text,
+                                    color: theme.dark
+                                        ? Colors.white
+                                        : Colors.black,
+                                    bgcolor: theme.dark
+                                        ? Colors.black
+                                        : Colors.white,
+                                  ),
+                                ),
+                              );
+                            }),
+                          );
+                        },
+                      ),
                     ),
-                  );
-                },
+                  ],
+                ),
               ));
   }
 }
