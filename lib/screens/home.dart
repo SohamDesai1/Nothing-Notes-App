@@ -184,7 +184,14 @@ class _HomeState extends ConsumerState<Home> {
                                   onTapDown: (details) =>
                                       _getTapPosition(details),
                                   child: GestureDetector(
-                                    onTap: () {},
+                                    onTap: () {
+                                      GoRouter.of(context).goNamed("Edit",
+                                          pathParameters: {
+                                            "key" : note.key,
+                                            "title": note.title,
+                                            "text": note.text
+                                          });
+                                    },
                                     child: NotesDisplay(
                                       title: note.title,
                                       content: note.text,
