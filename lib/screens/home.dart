@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'dart:developer';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sizer/sizer.dart';
 import '../providers/theme.dart';
 import '../providers/notes.dart';
 import '../providers/pin_notes.dart';
 import '../models/note.dart';
-import '../routes/routes.dart';
 import '../widgets/note_display.dart';
 
 class Home extends ConsumerStatefulWidget {
@@ -25,75 +25,6 @@ class _HomeState extends ConsumerState<Home> {
     super.initState();
     ref.read(noteDBProvider).fetchNotes();
     ref.read(pinNoteProvider).fetchPin();
-  }
-
-  void createNote() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        content: SizedBox(
-          height: 20.h,
-          child: Column(
-            children: [
-              TextField(
-                controller: titlectrl,
-              ),
-              TextField(
-                controller: textctrl,
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          MaterialButton(
-            onPressed: () {
-              ref.read(noteDBProvider).addNote(titlectrl.text, textctrl.text);
-              log("CurrNotes:${ref.read(noteDBProvider).notes.toString()}");
-              textctrl.clear();
-              titlectrl.clear();
-              Routes.router.pop();
-            },
-            child: const Text("Create"),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void updateNote(Note note) {
-    titlectrl.text = note.title;
-    textctrl.text = note.text;
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        content: SizedBox(
-          height: 15.h,
-          child: Column(
-            children: [
-              TextField(
-                controller: titlectrl,
-              ),
-              TextField(
-                controller: textctrl,
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          MaterialButton(
-            onPressed: () {
-              ref
-                  .read(noteDBProvider)
-                  .updateNote(titlectrl.text, textctrl.text, note.key);
-              titlectrl.clear();
-              textctrl.clear();
-              Routes.router.pop();
-            },
-            child: const Text("Edit"),
-          ),
-        ],
-      ),
-    );
   }
 
   void deleteNote(Note note) {
@@ -177,7 +108,7 @@ class _HomeState extends ConsumerState<Home> {
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: FloatingActionButton(
           shape: const CircleBorder(),
-          onPressed: createNote,
+          onPressed: () => GoRouter.of(context).go('/new'),
           child: const Icon(
             Icons.add,
             color: Colors.red,
@@ -252,15 +183,18 @@ class _HomeState extends ConsumerState<Home> {
                                       _showContextMenu(context, note),
                                   onTapDown: (details) =>
                                       _getTapPosition(details),
-                                  child: NotesDisplay(
-                                    title: note.title,
-                                    content: note.text,
-                                    color: theme.dark
-                                        ? Colors.white
-                                        : Colors.black,
-                                    bgcolor: theme.dark
-                                        ? Colors.black
-                                        : Colors.white,
+                                  child: GestureDetector(
+                                    onTap: () {},
+                                    child: NotesDisplay(
+                                      title: note.title,
+                                      content: note.text,
+                                      color: theme.dark
+                                          ? Colors.white
+                                          : Colors.black,
+                                      bgcolor: theme.dark
+                                          ? Colors.black
+                                          : Colors.white,
+                                    ),
                                   ),
                                 ),
                               );
