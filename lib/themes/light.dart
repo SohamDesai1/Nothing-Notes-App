@@ -27,6 +27,11 @@ ThemeData lightmode = ThemeData(
       return Colors.black;
     }),
   ),
+  elevatedButtonTheme: ElevatedButtonThemeData(style: ButtonStyle(
+      backgroundColor: MaterialStateProperty.resolveWith<Color?>(
+          (Set<MaterialState> states) {
+    return Colors.black;
+  }))),
   brightness: Brightness.light,
   colorScheme: ColorScheme.light(
       background: Colors.white,
